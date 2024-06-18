@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Reparaciones y Mantenciones Morgado</title>
+  <link rel="stylesheet" href="../css/style-general.css">
+  <link rel="stylesheet" href="../css/style-admin.css">
+</head>
+<body>
+
+<header class="main-header">
+  <div class="container">
+    <div class="logo">
+      <img src="../img/logo.png" alt="Logo">
+      <span>SERVICIO TÉCNICO</span>
+      <span>MORGADO</span>
+    </div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="../index.html#inicio">INICIO</a></li>
+        <li><a href="../index.html#servicios">TIENDA</a></li>
+        <li><a href="../index.html#somos">SOMOS</a></li>
+        <li><a href="../index.html#contacto">CONTACTO</a></li>
+      </ul>
+    </nav>
+    <div class="nav-icons">
+      <a href="catalogo.html#carrito-compras"><img src="../img/cart-icon.png" alt="Carrito"></a>
+      <a href="#" id="login-icon"><img src="../img/login-icon.png" alt="Iniciar Sesión"></a>
+      <a href="#"><img src="../img/search-icon.png" alt="Buscar"></a>
+      <div id="logout-menu" class="logout-menu">
+        <ul>
+          <li><a href="../index.html">Cerrar Sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="hero-section admin-section">
+  <div class="admin-header">
+    <h1>Administrar Servicios</h1>
+  </div>
+  <div class="admin-content">
+    <div class="form-section">
+      <div class="form-container">
+        <form id="serviceForm">
+          <label for="name">Nombre del Producto:</label>
+          <input type="text" id="name" name="name" required>
+          <label for="brand">Marca del Producto:</label>
+          <input type="text" id="brand" name="brand" required>
+          <label for="price">Precio:</label>
+          <input type="number" id="price" name="price" required>
+          <label for="description">Descripción:</label>
+          <textarea id="description" name="description" required></textarea>
+          <button type="submit" class="cta-a">Agregar</button>
+        </form>
+      </div>
+    </div>
+    <div class="services-list">
+      <!-- Aquí se agregarán los servicios -->
+    </div>
+  </div>
+</section>
+
+<script>
+  let services = JSON.parse(localStorage.getItem('products')) || [];
+
+  let editingIndex = -1;
+
+  function displayServices() {
+    const servicesList = document.querySelector('.services-list');
+    servicesList.innerHTML = '';
+    services.forEach((service, index) => {
+      const serviceDiv = document.createElement('div');
+      serviceDiv.innerHTML = `
+        <p><strong>Nombre del Producto:</strong> ${service.name}</p>
+        <p><strong>Marca del Producto:</strong> ${service.brand}</p>
+        <p><strong>Precio:</strong> $${formatNumber(service.price)}</p>
+        <p><strong>Descripción:</strong> ${service.description}</p>
+        <button class="cta-a" onclick="editService(${index})">Modificar</button>
+        <button class="cta-a remove-btn" onclick="removeService(${index})">Eliminar</button>
+      `;
+      servicesList.appendChild(serviceDiv);
+    });
+  }
+
+  function formatNumber(num) {
+    return num.toLocaleString('de-DE');
+  }
+
+  function removeService(index) {
+    services.splice(index, 1);
+    localStorage.setItem('products', JSON.stringify(services));
+    displayServices();
+  }
+
+  function editService(index) {
+    const service = services[index];
+    document.getElementById('name').value = service.name;
+    document.getElementById('brand').value = service.brand;
+    document.getElementById('price').value = service.price;
+    document.getElementById('description').value = service.description;
+    editingIndex = index;
+  }
+
+  document.getElementById('serviceForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const name = document.getElementById('name').value;
+    const brand = document.getElementById('brand').value;
+    const price = parseInt(document.getElementById('price').value);
+    const description = document.getElementById('description').value;
+
+    const newService = { name, brand, price, description };
+    if (editingIndex >= 0) {
+      services[editingIndex] = newService;
+      editingIndex = -1;
+    } else {
+      services.push(newService);
+    }
+    localStorage.setItem('products', JSON.stringify(services));
+    displayServices();
+    document.getElementById('serviceForm').reset();
+  });
+
+  window.onload = function() {
+    displayServices();
+  };
+</script>
+
+</body>
+</html>
